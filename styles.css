@@ -1,0 +1,331 @@
+* {
+    font-family: 'Karla', sans-serif;
+}
+
+body {
+    color: #1b3349;
+    background: rgba(229, 228, 212, 0.4);
+}
+
+h1 {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.center {
+    text-align: center;
+}
+
+.container {
+    margin-top: 25px;
+    margin-left: 30%;
+    margin-right: 30%;
+}
+
+/*Buttons*/
+.btn {
+    cursor: pointer;
+    color: rgb(255, 255, 255);
+    background-color: rgb(98, 136, 165);
+    border-color: rgb(50, 104, 145);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 11px;
+    text-transform: uppercase;
+    border-radius: 3px;
+    transition: all 0.6s ease 0s;
+    border-width: 1px;
+    border-style: solid;
+    border-image: initial;
+    padding: 9px 15px 8px;
+    outline: none
+}
+
+.btn:hover {
+    background-color: rgb(46, 107, 150);
+}
+
+.btn-danger {
+    background-color: rgb(165, 66, 65);
+    border-color: rgb(145, 44, 51);
+}
+
+.btn-danger:hover {
+    background-color: rgb(150, 48, 48);
+}
+
+.btn-danger-inverse {
+    background-color: #fff;
+    color: rgb(165, 66, 65);
+    border-color: rgb(145, 44, 51);
+}
+
+.btn-danger-inverse:hover {
+    color: #fff;
+    background-color: rgb(165, 66, 65);
+}
+
+.btn-danger-inverse-selected {
+    color: #fff;
+    background-color: rgb(165, 66, 65);
+}
+
+.btn-success {
+    background-color: rgb(57, 165, 86);
+    border-color: rgb(46, 102, 45);
+}
+
+.btn-success:hover {
+    background-color: rgb(55, 102, 43);
+}
+
+.btn-success-inverse {
+    background-color: #fff;
+    color: rgb(57, 165, 86);
+    border-color: rgb(46, 102, 45);
+}
+
+.btn-success-inverse:hover {
+    color: #fff;
+    background-color: rgb(55, 102, 43);
+}
+
+.btn-success-inverse-selected {
+    color: #fff;
+    background-color: rgb(55, 102, 43);
+}
+
+.btn-wide {
+    width: 100%;
+}
+
+.btn-sort {
+    background-color: #fff;
+    color: rgba(36, 33, 34, 0.82);
+    border-color: rgb(41, 41, 41);
+    width: 24.5%;
+}
+
+.btn-sort:hover {
+    color: #fff;
+    background-color: rgba(36, 33, 34, 0.82);
+}
+
+.btn-sort-selected {
+    color: #fff;
+    background-color: rgba(36, 33, 34, 0.82);
+}
+
+.search-input {
+    font-size: 20px;
+    width: 100%;
+    padding: 5px;
+    border-radius: 3px;
+    border: 1px solid black;
+}
+
+/*Modal*/
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal {
+    width: 500px;
+    background: #FFFFFF;
+    box-shadow: 2px 2px 20px 1px;
+    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header,
+.modal-footer {
+    padding: 15px;
+    display: flex;
+}
+
+.modal-header {
+    border-bottom: 1px solid #eeeeee;
+    color: rgb(50, 104, 145);
+    justify-content: space-between;
+}
+
+.modal-footer {
+    border-top: 1px solid #eeeeee;
+    justify-content: flex-end;
+}
+
+.modal-body {
+    position: relative;
+    padding: 20px 10px;
+}
+
+.btn-close {
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    color: rgb(50, 104, 145);
+    background: transparent;
+}
+
+/*.input-text {*/
+/*    width: 50%;*/
+/*}*/
+.form {
+    display: flex;
+}
+
+.form .input-course_name {
+    width: 75%;
+    font-size: 2em;
+}
+
+.form .input-course_grade {
+    width: 25%;
+    font-size: 2em;
+}
+
+.label-course_name {
+    width: 75%;
+}
+
+.label-course_grade {
+    width: 25%;
+}
+
+.error-message {
+    color: rgb(193, 49, 56);;
+}
+
+.course-container {
+    margin-top: 25px;
+    margin-left: 30%;
+    margin-right: 30%;
+}
+
+.course-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.course-item {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+/*animation from https://techfunda.com/howto/1148/animating-right-to-left*/
+.slide-left {
+    /* for chrome and safari*/
+    -webkit-animation-duration: 0.5s;
+    -webkit-animation-name: slideleft;
+
+    /*for firefox*/
+    -moz-animation-duration: 0.5s;
+    -moz-animation-name: slideleft;
+
+    /* Standard syntax*/
+    animation-duration: 0.5s;
+    animation-name: slideleft;
+}
+
+@-webkit-keyframes slideleft {
+    from {
+        margin-left: 100%;
+        width: 300%;
+    }
+
+    to {
+        margin-left: 0%;
+        width: 100%;
+    }
+}
+
+@-moz-keyframes slideleft {
+    from {
+        margin-left: 100%;
+        width: 300%;
+    }
+
+    to {
+        margin-left: 0%;
+        width: 100%;
+    }
+}
+
+@keyframes slideleft {
+    from {
+        margin-left: 100%;
+        width: 300%;
+    }
+
+    to {
+        margin-left: 0%;
+        width: 100%;
+    }
+}
+
+/*.slide-right {*/
+/*    color:red;*/
+/*}*/
+
+.slide-right {
+    /* for chrome and safari*/
+    -webkit-animation-duration: 0.5s;
+    -webkit-animation-name: slideright;
+
+    /*for firefox*/
+    -moz-animation-duration: 0.5s;
+    -moz-animation-name: slideright;
+
+    /* Standard syntax*/
+    animation-duration: 0.5s;
+    animation-name: slideright;
+}
+
+@-webkit-keyframes slideright {
+    from {
+        margin-right: 0%;
+        width: 100%;
+    }
+
+    to {
+        margin-right: 100%;
+        width: 300%;
+    }
+}
+
+@-moz-keyframes slideright {
+    from {
+        margin-right: 0%;
+        width: 100%;
+    }
+
+    to {
+        margin-right: 100%;
+        width: 300%;
+    }
+}
+
+@keyframes slideright {
+    from {
+        margin-right: 0%;
+        width: 100%;
+    }
+
+    to {
+        margin-right: 100%;
+        width: 300%;
+    }
+}

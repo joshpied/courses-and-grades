@@ -1,0 +1,302 @@
+<html xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Grades</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Karla&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <h1 class="center">Courses and Grades</h1>
+  <div class="center container">
+    <button class="btn btn-wide btn-success" v-on:click="showModal('Add')">
+      &#43; Add Course and Grade
+    </button>
+  </div>
+  <div class="center container">
+    <input class="search-input" type="text" placeholder="Search course..." v-model="search"/>
+  </div>
+  <div class="center container">
+    <button class="btn btn-sort" v-bind:class="{ 'btn-sort-selected': selectedSort === 'courseAsc'}"
+            v-on:click="sort('course', 'asc')">Courses &#8593;
+    </button>
+    <button class="btn btn-sort" v-bind:class="{ 'btn-sort-selected': selectedSort === 'courseDesc'}"
+            v-on:click="sort('course', 'desc')">Courses &#8595;
+    </button>
+    <button class="btn btn-sort" v-bind:class="{ 'btn-sort-selected': selectedSort === 'gradeAsc'}"
+            v-on:click="sort('grade', 'asc')">Grades &#8593;
+    </button>
+    <button class="btn btn-sort" v-bind:class="{ 'btn-sort-selected': selectedSort === 'gradeDesc'}"
+            v-on:click="sort('grade', 'desc')">Grades &#8595;
+    </button>
+  </div>
+  <div class="center container">
+    <button class="btn btn-success-inverse" style="width: 50%"
+            v-bind:class="{ 'btn-success-inverse-selected': selectedFilter === 'honourGrades'}"
+            v-on:click="filter('honourGrades')">Honour Grades
+    </button>
+    <button class="btn btn-danger-inverse" style="width: 49%"
+            v-bind:class="{ 'btn-danger-inverse-selected': selectedFilter === 'failGrades'}"
+            v-on:click="filter('failGrades')">Failing Grades
+    </button>
+  </div>
+  <div class="course-container">
+    <div class="course-list">
+      <course
+              class="course-item"
+              v-for="course in filteredList"
+              v-bind:key="course.id"
+              v-bind:course="course">
+      </course>
+    </div>
+  </div>
+  <div class="center container">
+    <h5>Average: {{ average }}% Highest Mark: {{ max }}% Lowest Mark: {{ min }}%</h5>
+  </div>
+  <modal v-show="isModalVisible" v-bind:form="form" v-bind:course="course" @close="closeModal"></modal>
+</div>
+
+<script>
+
+  // Modal template from https://alligator.io/vuejs/vue-modal-component/
+  Vue.component('modal', {
+    template: `
+        <div class="modal-backdrop">
+          <div class="modal">
+            <header class="modal-header">
+              <slot name="header">
+                {{form}} Course / Grade
+                <button
+                  type="button"
+                  class="btn-close"
+                  v-on:click="close"
+                >
+                  x
+                </button>
+              </slot>
+            </header>
+            <section class="modal-body">
+              <slot name="body">
+                <h6 v-if="displayError" class="error-message center">{{errorMessage}}</h6>
+                <div style="display: flex;">
+                    <label for="name" class="label-course_name">Course</label>
+                    <label for="name" class="label-course_grade">Grade</label>
+                </div>
+
+                <form id="addForm" class="form" v-if="form === 'Add'">
+                  <input type="text" ref="name" class="input-course_name"/>
+                  <input type="number" ref="grade" class="input-course_grade" min="0" max="100"/>
+                </form>
+
+                <form id="editForm" class="form" v-if="form === 'Edit'">
+                  <input type="text" ref="editName" :value="course.name" class="input-course_name"/>
+                  <input type="number" ref="editGrade" :value="course.grade" class="input-course_grade" min="0" max="100"/>
+                </form>
+              </slot>
+             </section>
+             <footer class="modal-footer">
+              <slot name="footer">
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  v-on:click="submit"
+                >
+                  Submit
+              </button>
+            </slot>
+            </footer>
+          </div>
+        </div>
+    `,
+    props: ['form', 'course'],
+    data: function () {
+      return {
+        error: {message: '', show: false}
+      }
+    },
+    computed: {
+      errorMessage() {
+        return this.error.message;
+      },
+      displayError() {
+        return this.error.show;
+      }
+    },
+    methods: {
+      close() {
+        this.$emit('close');
+      },
+      submit() {
+        this.error.show = false;
+
+        if (this.form === 'Add') {
+          if (this.$refs.name.value !== '') {
+            if (this.$refs.grade.value >= 0 && this.$refs.grade.value <= 100) {
+              if (this.doesCourseExist(this.$refs.name.value) === -1) {
+                app.courses.push({
+                  id: Date.now(),
+                  name: this.$refs.name.value,
+                  grade: Number(this.$refs.grade.value)
+                });
+                this.$refs.name.value = '';
+                this.$refs.grade.value = undefined;
+                this.close();
+              } else {
+                this.error.message = 'This course is already in your list!';
+                this.error.show = true;
+              }
+            } else {
+              this.error.message = 'Grade must be between 0 and 100!';
+              this.error.show = true;
+            }
+          }
+        }
+        if (this.form === 'Edit') {
+          if (this.$refs.editName.value !== '') {
+            if (this.$refs.editGrade.value >= 0 && this.$refs.editGrade.value <= 100) {
+              const courseIndex = this.doesCourseExist(this.$refs.editName.value);
+              if (courseIndex === -1 || courseIndex === app.courses.findIndex(course => course.id === this.course.id)) {
+                const index = app.courses.findIndex(course => course.id === this.course.id);
+                app.courses[index].name = this.$refs.editName.value;
+                app.courses[index].grade = Number(this.$refs.editGrade.value);
+                this.close();
+              } else {
+                this.error.message = 'This course is already in your list!';
+                this.error.show = true;
+              }
+            } else {
+              this.error.message = 'Grade must be between 0 and 100!';
+              this.error.show = true;
+            }
+          }
+        }
+      },
+      doesCourseExist(courseToAdd) {
+        return app.courses.findIndex(course => course.name === courseToAdd);
+      }
+    }
+  });
+
+  Vue.component('course', {
+    props: ['course'],
+    template: `<div class="slide-left" v-bind:class="{ 'slide-right': courseToDeleteId === course.id}">
+                  <h2 style="width: 40%">{{ course.name }}</h2>
+                  <h2 style="width: 25%">{{ course.grade }}%</h2>
+                  <button class="btn" style="width: 15%" v-on:click="showModal('Edit', course)">
+                    &#9998; Edit
+                  </button>
+                  <button style="width: 15%; margin-left: 5%;" class="btn btn-danger" v-on:click="deleteCourse(course.id)">
+                    &#10006; Delete
+                  </button>
+               </div>`,
+    data: function () {
+      return {
+        courseToDeleteId: null
+      }
+    },
+    methods: {
+      deleteCourse(id) {
+        this.courseToDeleteId = id;
+        setTimeout(() => {
+          app.courses = app.courses.filter(course => course.id !== id);
+        }, 500);
+      },
+      showModal(Edit, course) {
+        app.showModal('Edit', course)
+      }
+    }
+  });
+
+  const app = new Vue({
+    el: '#app',
+    data: {
+      courses: [
+        {id: 1, name: 'Math', grade: 85},
+        {id: 2, name: 'History', grade: 94},
+        {id: 3, name: 'Geography', grade: 77},
+        {id: 4, name: 'Chemistry', grade: 49}
+      ],
+      isModalVisible: false,
+      form: 'Add',
+      course: null,
+      search: '',
+      selectedSort: '',
+      selectedFilter: ''
+    },
+    computed: {
+      filteredList() {
+        if (this.selectedFilter === '') {
+          return this.courses.filter(course => {
+            return course.name.toLowerCase().includes(this.search.toLowerCase())
+          });
+        }
+        if (this.selectedFilter === 'honourGrades') {
+          return this.courses.filter(course => {
+            return course.name.toLowerCase().includes(this.search.toLowerCase()) //.filter(course => course.grade >= 80)
+          }).filter(course => course.grade >= 80);
+        }
+        if (this.selectedFilter === 'failGrades') {
+          return this.courses.filter(course => {
+            return course.name.toLowerCase().includes(this.search.toLowerCase()) //.filter(course => course.grade < 50)
+          }).filter(course => course.grade < 50);
+        }
+      },
+      grades() {
+        // get just the grades as an array of numbers
+        return this.courses.map(a => a.grade);
+      },
+      min() {
+        if (this.grades.length) return Math.min(...this.grades);
+        else return 0;
+      },
+      max() {
+        if (this.grades.length) return Math.max(...this.grades);
+        else return 0;
+      },
+      average() {
+        if (this.grades.length) return (this.grades.reduce((acc, c) => acc + c, 0) / this.grades.length).toFixed(2);
+        else return 0;
+      }
+    },
+    methods: {
+      showModal(formType, course) {
+        this.form = formType;
+        this.course = course;
+        this.isModalVisible = true;
+      },
+      closeModal() {
+        this.isModalVisible = false;
+      },
+      sort(property, direction) {
+        this.selectedSort = '';
+        if (property === 'course' && direction === 'asc') {
+          this.courses.sort((a, b) => (a.name.toLowerCase() < b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() < a.name.toLowerCase()) ? -1 : 0));
+          this.selectedSort = 'courseAsc';
+        }
+        if (property === 'course' && direction === 'desc') {
+          this.courses.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0));
+          this.selectedSort = 'courseDesc';
+        }
+        if (property === 'grade' && direction === 'asc') {
+          this.courses.sort((a, b) => a.grade - b.grade);
+          this.selectedSort = 'gradeAsc';
+        }
+        if (property === 'grade' && direction === 'desc') {
+          this.courses.sort((a, b) => b.grade - a.grade);
+          this.selectedSort = 'gradeDesc';
+        }
+      },
+      filter(filterType) {
+        if (filterType === 'honourGrades' && this.selectedFilter === 'honourGrades') {
+          this.selectedFilter = '';
+        } else if (filterType === 'failGrades' && this.selectedFilter === 'failGrades') {
+          this.selectedFilter = '';
+        } else {
+          this.selectedFilter = filterType;
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>
